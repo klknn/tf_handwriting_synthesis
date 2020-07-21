@@ -8,6 +8,16 @@ reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 - matplotlib=3.2.2
 - register your user/passwd at http://www.fki.inf.unibe.ch/databases/iam-on-line-handwriting-database
 
+## TODO
+
+- attention layer
+- lstm layer
+- mixture-density layer
+- eos layer
+- biased sampling
+- checkpoint https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Checkpoint
+- tensorboard https://www.tensorflow.org/tensorboard/migrate
+
 ## how to train
 
 After setting up the requirements, try the all-in-one script: 

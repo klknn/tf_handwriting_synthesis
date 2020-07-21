@@ -1,4 +1,6 @@
 #!python3
+"""Training script."""
+
 import itertools
 
 import numpy as np
