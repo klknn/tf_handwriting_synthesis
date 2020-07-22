@@ -1,8 +1,12 @@
 *
+data/
 
 !*.sh
 !*.py
 !*.md
+
 !.gitignore
+!requirements.txt
+!testdata/
 
 flycheck_*
