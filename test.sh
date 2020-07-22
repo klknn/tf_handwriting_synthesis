@@ -6,13 +6,17 @@ CUDA_VISIBLE_DEVICES=NoDevFiles
 
 echo "=== install test deps ==="
 
-pip install mypy pytype
+pip install mypy pytype flake8
 
 echo "=== type checking ==="
 
 pytype .
 
 mypy --ignore-missing-imports .
+
+echo "=== lint ==="
+
+flake8 . --show-source --statistics
 
 echo "=== unit test ==="
 

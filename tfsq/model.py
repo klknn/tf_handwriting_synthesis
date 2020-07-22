@@ -34,7 +34,6 @@ def linear(xs: tf.Tensor, nh: int, scope: str,
         return tf.matmul(xs, wx) + b
 
 
-
 def simple_rnn_body(i, ys, hs, states):
     """Simple RNN body function."""
     nh = shape(hs)[-1]
