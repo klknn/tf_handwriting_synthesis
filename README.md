@@ -1,5 +1,9 @@
 # tfsq: sequence modeling library for tensorflow
 
+![ci](https://github.com/klknn/tfsq/workflows/ci/badge.svg)
+[![codecov](https://codecov.io/gh/klknn/tfsq/branch/master/graph/badge.svg)](https://codecov.io/gh/klknn/tfsq)
+
+
 reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 
 ## requirements
