@@ -1,13 +1,16 @@
 *
-data/
 
 !*.sh
 !*.py
 !*.md
+!*.yml
+!*/
 
 !.gitignore
 !requirements.txt
 !testdata/
 !tfsq/
+!.github/
 
+data/
 flycheck_*
