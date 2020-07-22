@@ -4,9 +4,9 @@ set -euo pipefail
 # disable cuda (TODO: how to enable assertions in cuda?)
 CUDA_VISIBLE_DEVICES=NoDevFiles
 
-echo "=== install test deps ==="
+echo "=== lint ==="
 
-pip install -U mypy pytype flake8 flake8-docstrings
+flake8 . --show-source --statistics
 
 echo "=== type checking ==="
 
@@ -14,13 +14,10 @@ pytype .
 
 mypy --ignore-missing-imports .
 
-echo "=== lint ==="
-
-flake8 . --show-source --statistics
-
 echo "=== unit test ==="
 
-python3 -m unittest discover -s tfsq -p "*_test.py" --verbose
+coverage run --omit "*_test.py" -m unittest discover -s tfsq -p "*_test.py" --verbose
+coverage report -m
 
 echo "=== integration test ==="
 
