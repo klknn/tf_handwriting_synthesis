@@ -17,8 +17,9 @@ mypy --ignore-missing-imports .
 echo "=== unit test ==="
 
 coverage run --omit "*_test.py" -m unittest discover -s tfsq -p "*_test.py" --verbose
-coverage report -m
+coverage report -i
 
 echo "=== integration test ==="
 
-python3 train.py --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1
+coverage run --append -m train --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1
+coverage report -i
