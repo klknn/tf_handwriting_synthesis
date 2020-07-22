@@ -1,17 +1,17 @@
-# flake8: noqa
+"""Tests for tfsq.model."""
 import tensorflow.compat.v1 as tf
 
 from tfsq import model
 
 
-# tf.disable_v2_behavior()
 tf.disable_eager_execution()
 
 
 class ModelTest(tf.test.TestCase):
-    """Tests for model."""
+    """Tests for tfsq.model."""
 
     def test_shape(self):
+        """Tests for shape."""
         with self.session():
             # static only
             x = tf.zeros((2, 3))
