@@ -1,4 +1,4 @@
-#!bash
+#!/bin/bash
 set -euo pipefail
 
 # disable cuda (TODO: how to enable assertions in cuda?)
