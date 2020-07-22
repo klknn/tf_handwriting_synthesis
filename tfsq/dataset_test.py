@@ -13,6 +13,7 @@ class DatasetTest(tf.test.TestCase):
     """Tests for tfsq.dataset."""
 
     def setUp(self):
+        """Set up fixtures."""
         self.dataset = list(dataset.load_dataset("testdata"))
 
     def test_extract_quoted(self):
@@ -38,7 +39,8 @@ class DatasetTest(tf.test.TestCase):
         stats = dataset.calc_stats(self.dataset)
         self.assertEqual(stats["num_examples"], 1)
 
-    def test_plot(self):
+    def test_plot_strokes(self):
+        """Test plot_strokes."""
         fig = dataset.plot_strokes(self.dataset[0].strokes)
         self.assertTrue(fig)
 

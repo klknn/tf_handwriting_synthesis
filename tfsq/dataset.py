@@ -6,7 +6,7 @@ from glob import glob
 import os
 import re
 import tarfile
-from typing import Any, Dict, Iterator, List
+from typing import Any, Dict, Iterator, Iterable, List
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -123,7 +123,7 @@ class TensorExample:
         )
 
 
-def calc_stats(xs: Iterator[RawExample]) -> Dict[str, Any]:
+def calc_stats(xs: Iterable[RawExample]) -> Dict[str, Any]:
     """Calculate statistics over dataset."""
     # TODO: calc vocab
     n = 0
