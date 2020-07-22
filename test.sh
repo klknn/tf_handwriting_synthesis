@@ -6,7 +6,7 @@ CUDA_VISIBLE_DEVICES=NoDevFiles
 
 echo "=== install test deps ==="
 
-pip install mypy pytype flake8
+pip install -U mypy pytype flake8 flake8-docstrings
 
 echo "=== type checking ==="
 

@@ -1,3 +1,4 @@
+# flake8: noqa
 import tensorflow.compat.v1 as tf
 
 from tfsq import model

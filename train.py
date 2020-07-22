@@ -28,6 +28,7 @@ FLAGS = tf.flags.FLAGS
 
 
 def setup_dataset():
+    """Set up dataset."""
     if FLAGS.download:
         dataset.download_tgz(FLAGS.http_user, FLAGS.http_password, FLAGS.root)
     ds = dataset.load_tf_dataset(root=FLAGS.root)

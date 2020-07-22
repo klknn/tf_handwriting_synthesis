@@ -13,7 +13,7 @@ def shape(x: tf.Tensor) -> List[tf.Tensor]:
 
 def linear(xs: tf.Tensor, nh: int, scope: str,
            w_stddev: float = 0.02) -> tf.Tensor:
-    """"Transform a sequence by linear weight and bias.
+    """Transform a sequence by linear weight and bias.
 
     Args:
         xs: float tensor [batch, time, feat].
@@ -35,7 +35,7 @@ def linear(xs: tf.Tensor, nh: int, scope: str,
 
 
 def simple_rnn_body(i, ys, hs, states):
-    """Simple RNN body function."""
+    """Apply Simple RNN per step."""
     nh = shape(hs)[-1]
     wh = tf.get_variable(
         "wh", [nh, nh],
@@ -106,9 +106,9 @@ def lstm_body(xs: tf.Tensor, states) -> tf.Tensor:
 
 def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
                 w_stddev: float = 0.02) -> tf.Tensor:
-    """Compute context vector and attention matrix in Eq. (46-51)
+    """Compute context vector and attention matrix.
 
-    A. Graves https://arxiv.org/pdf/1308.0850.pdf
+    See also: Eq. (46-51) A. Graves https://arxiv.org/pdf/1308.0850.pdf
 
     Args:
         src: float tensor [nb, nsrc, nh]

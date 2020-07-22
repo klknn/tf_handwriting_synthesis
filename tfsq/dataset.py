@@ -32,6 +32,7 @@ STATS = {
 @dataclasses.dataclass
 class ExamplePath:
     """Path struct to load Example."""
+
     text: str
     strokes: List[str]
     prefix: str
@@ -40,6 +41,7 @@ class ExamplePath:
 @dataclasses.dataclass
 class RawExample:
     """Raw example struct."""
+
     text: str
     # list of (seqlen, 3)
     strokes: List[np.ndarray]
@@ -196,7 +198,7 @@ def plot_strokes(strokes: List[np.ndarray]) -> plt.Figure:
 
 
 def load_text(path: str) -> List[str]:
-    """"Load text lines from a file path."""
+    """Load text lines from a file path."""
     with open(path, "r") as f:
         for line in f:
             line = line.strip()
