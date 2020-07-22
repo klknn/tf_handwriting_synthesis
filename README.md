@@ -13,7 +13,7 @@ reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 
 ## TODO
 
-- lstm layer
+- split net modules
 - mixture-density layer
 - eos layer
 - biased sampling
