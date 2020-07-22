@@ -20,7 +20,7 @@ flake8 . --show-source --statistics
 
 echo "=== unit test ==="
 
-python3 -m unittest discover -s tfsq -p "*_test.py"
+python3 -m unittest discover -s tfsq -p "*_test.py" --verbose
 
 echo "=== integration test ==="
 
