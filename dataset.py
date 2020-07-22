@@ -3,11 +3,14 @@ from __future__ import annotations
 import dataclasses
 from itertools import chain
 from glob import glob
+import os
 import re
-from typing import Dict, Iterator, List, NamedTuple
+import tarfile
+from typing import Any, Dict, Iterator, List
 
 import matplotlib.pyplot as plt
 import numpy as np
+import requests
 import tensorflow.compat.v1 as tf
 
 
@@ -48,18 +51,24 @@ class TensorExample:
     text_ids: np.ndarray
     strokes: np.ndarray
     raw_strokes: np.ndarray
-    lengths: np.ndarray
+    strokes_lengths: np.ndarray
+    strokes_length: int
+    text_length: int
     end_flags: np.ndarray
-    weight: np.ndarray
+    strokes_weight: np.ndarray
+    text_weight: np.ndarray
 
     types = {
         "text": tf.string,
         "text_ids": tf.int32,
         "strokes": tf.float32,
         "raw_strokes": tf.float32,
-        "end_flags": tf.int32,
-        "lengths": tf.int32,
-        "weight": tf.float32,
+        "end_flags": tf.float32,
+        "strokes_lengths": tf.int32,
+        "strokes_length": tf.int32,
+        "strokes_weight": tf.float32,
+        "text_length": tf.int32,
+        "text_weight": tf.float32,
     }
 
     shapes = {
@@ -68,10 +77,14 @@ class TensorExample:
         "strokes": tf.TensorShape([None, 3]),
         "raw_strokes": tf.TensorShape([None, 3]),
         "end_flags": tf.TensorShape([None]),
-        "lengths": tf.TensorShape([None]),
-        "weight": tf.TensorShape([None]),
+        "strokes_lengths": tf.TensorShape([None]),
+        "strokes_length": tf.TensorShape([]),
+        "strokes_weight": tf.TensorShape([None]),
+        "text_length": tf.TensorShape([]),
+        "text_weight": tf.TensorShape([None]),
     }
 
+    # TODO
     padding_values = {
         "end_flags": 1,
     }
@@ -87,11 +100,10 @@ class TensorExample:
         """Load a raw example."""
         raw_strokes = np.concatenate(x.strokes)
         strokes = (raw_strokes - STATS["mean"]) / STATS["stddev"]
-        end_flags = np.zeros(len(strokes), dtype=np.int32)
-        weight = np.ones(len(strokes), dtype=np.float32)
-        lengths = np.array([len(s) for s in x.strokes], dtype=np.int32)
+        end_flags = np.zeros(len(strokes), dtype=np.float32)
+        strokes_lengths = np.array([len(s) for s in x.strokes], dtype=np.int32)
         t = 0
-        for l in lengths:
+        for l in strokes_lengths:
             t += l
             end_flags[t-1] = 1
         return TensorExample(
@@ -100,12 +112,15 @@ class TensorExample:
             strokes=strokes,
             raw_strokes=raw_strokes,
             end_flags=end_flags,
-            lengths=lengths,
-            weight=weight,
+            strokes_lengths=strokes_lengths,
+            strokes_length=sum(strokes_lengths),
+            strokes_weight=np.ones(len(strokes), dtype=np.float32),
+            text_weight=np.ones(len(x.text), dtype=np.float32),
+            text_length=len(x.text),
         )
 
 
-def calc_stats(xs: Iterator[RawExample]) -> Dict:
+def calc_stats(xs: Iterator[RawExample]) -> Dict[str, Any]:
     """Calculate statistics over dataset."""
     # TODO: calc vocab
     n = 0
@@ -127,7 +142,7 @@ def calc_stats(xs: Iterator[RawExample]) -> Dict:
             mean = n / nm * mean + s.sum(axis=0) / nm
             mean2 = n / nm * mean2 + s.sum(axis=0) ** 2 / nm
             n += m
-    vocab = {x: i for i, x in enumerate(sorted(list(vocab)))}
+    vocab_dict = {x: i for i, x in enumerate(sorted(list(vocab)))}
     return {
         "num_examples": num_examples,
         "num_stroke_frames": n,
@@ -136,7 +151,7 @@ def calc_stats(xs: Iterator[RawExample]) -> Dict:
         "mean": mean,
         "stddev": (mean2 - mean ** 2) ** 0.5,
         "num_vocab": len(vocab),
-        "vocab": vocab
+        "vocab": vocab_dict
     }
 
 
@@ -152,7 +167,9 @@ def load_strokes(path: str) -> List[np.ndarray]:
         for line in f:
             line = line.strip()
             if line.startswith("<Stroke "):
-                xs, ys, ts = [], [], []
+                xs: List[int] = []
+                ys: List[int] = []
+                ts: List[float] = []
             if line == "</Stroke>":
                 ret.append(np.array([xs, ys, ts], dtype=np.float32).T)
             if line.startswith("<Point "):
@@ -188,7 +205,7 @@ def load_text(path: str) -> List[str]:
         return [x.strip() for x in f]
 
 
-def iter_example_path(root: str = "data") -> Iterator[ExamplePath]:
+def iter_example_path(root: str) -> Iterator[ExamplePath]:
     """Iterate example paths in root."""
     for text in glob(f"{root}/ascii/**/*.txt", recursive=True):
         # omit .txt
@@ -210,12 +227,12 @@ def load_raw_examples(paths: ExamplePath) -> Iterator[RawExample]:
         yield RawExample(text=t, strokes=s)
 
 
-def load_dataset(root: str = "data") -> Iterator[Dict]:
+def load_dataset(root: str) -> Iterator[RawExample]:
     """Load dataset in root."""
     return chain.from_iterable(map(load_raw_examples, iter_example_path(root)))
 
 
-def load_tf_dataset(root: str = "data") -> tf.data.Dataset:
+def load_tf_dataset(root: str) -> tf.data.Dataset:
     """Load tf.data.Dataset."""
     def gen():
         for raw in load_dataset(root):
@@ -227,6 +244,36 @@ def load_tf_dataset(root: str = "data") -> tf.data.Dataset:
     )
 
 
+def download_tgz(username: str, password: str, root: str):
+    """Download required tgz."""
+    os.makedirs(root, exist_ok=True)
+    for fname in ["ascii-all.tar.gz", "lineStrokes-all.tar.gz"]:
+        dst = os.path.join(root, fname)
+        if os.path.exists(dst):
+            tf.logging.info(f"Found {dst}.")
+            continue
+
+        if username == "" or password == "":
+            raise ValueError(
+                "Register username and password at http://www.fki.inf.unibe.ch"
+                "/databases/iam-on-line-handwriting-database")
+
+        tf.logging.info(f"Downloading {fname}.")
+        r = requests.get(
+            f"http://www.fki.inf.unibe.ch/DBs/iamOnDB/data/{fname}",
+            auth=(username, password))
+        r.raise_for_status()
+
+        # process tarfile
+        cwd = os.getcwd()
+        os.chdir(root)
+        with open(fname, "wb") as f:
+            f.write(r.content)
+        with tarfile.open(fname, "r") as t:
+            t.extractall()
+        os.chdir(cwd)
+
+
 if __name__ == "__main__":
-    STATS = calc_stats(load_dataset())
+    STATS = calc_stats(load_dataset("data"))
     print(STATS)

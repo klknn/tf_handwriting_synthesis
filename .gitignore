@@ -1,0 +1,8 @@
+*
+
+!*.sh
+!*.py
+!*.md
+!.gitignore
+
+flycheck_*
