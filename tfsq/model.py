@@ -1,5 +1,5 @@
 """Neural network model."""
-from typing import Callable, Dict, List
+from typing import Dict, List
 
 import tensorflow.compat.v1 as tf
 
@@ -34,34 +34,76 @@ def linear(xs: tf.Tensor, nh: int, scope: str,
         return tf.matmul(xs, wx) + b
 
 
+
+def simple_rnn_body(i, ys, hs, states):
+    """Simple RNN body function."""
+    nh = shape(hs)[-1]
+    wh = tf.get_variable(
+        "wh", [nh, nh],
+        initializer=tf.random_normal_initializer(stddev=0.02))
+    h = tf.tanh(ys[:, i] + tf.matmul(hs[:, i], wh))
+    return i + 1, ys, tf.concat((hs, h[:, tf.newaxis]), axis=1), states
+
+
 def rnn(xs: tf.Tensor,
-        nh: int,
+        states: Dict[str, tf.Tensor],
         scope: str,
         w_stddev: float = 0.02,
-        act: Callable[[tf.Tensor], tf.Tensor] = tf.tanh) -> tf.Tensor:
-    """Apply recurrent neural networks."""
-    with tf.variable_scope(scope):
-        ys = linear(xs, nh, "linear_x", w_stddev)
-        wh = tf.get_variable(
-            "wh", [nh, nh],
-            initializer=tf.random_normal_initializer(stddev=w_stddev))
+        body_fn=simple_rnn_body) -> tf.Tensor:
+    """Apply recurrent neural networks.
 
-        def cond(i, _):
+    Args:
+        xs: float tensor [batch, time, feat].
+        states: dict of float tensors [batch, 1, feat]
+        scope: variable scope name.
+        w_stddev: weight initialization scale.
+        act: activation function.
+
+    Returns:
+        float tensor [batch, time, nh].
+
+    """
+    with tf.variable_scope(scope):
+        nh = shape(states["h"])[-1]
+        ys = linear(xs, nh, "linear_x", w_stddev)
+
+        def cond(i, *_):
             return i < shape(xs)[1]
 
-        def body(i, hs):
-            h = act(ys[:, i] + tf.matmul(hs[:, i], wh))
-            h = h[:, tf.newaxis]
-            return i + 1, tf.concat((hs, h), axis=1)
-
-        _, hs = tf.while_loop(
+        _, _, hs, states = tf.while_loop(
             cond=cond,
-            body=body,
-            loop_vars=[tf.constant(0), tf.zeros_like(ys[:, 0:1])],
-            # shape_invariants=[tf.TensorShape([]), tf.TensorShape([None, None, nh])],
+            body=body_fn,
+            loop_vars=[0, ys, states["h"], states],
+            # shape_invariants=[tf.TensorShape([]),
+            #                   tf.TensorShape([None, None, nh])],
         )
         # omit the first zeros
-        return hs[:, 1:]
+        return hs[:, 1:], {"h": hs[:, -1]}
+
+
+def lstm_body(xs: tf.Tensor, states) -> tf.Tensor:
+    """Apply LSTM activation (w/o peephole connections).
+
+    Args:
+        xs: float tensor [batch, nh * 4].
+        states: dict of float tensors [batch, feat]
+
+    Returns:
+        float tensor [batch, time, nh].
+
+    """
+    nb, nx = shape(xs)
+    assert nx % 4 == 0
+    nh = nx // 4
+    gates = tf.reshape(xs, [nb, nh, 4])
+    fio = tf.sigmoid(gates[:, :3])
+    f = fio[:, :, 0]
+    i = fio[:, :, 1]
+    o = fio[:, :, 2]
+    c = f * states["c"] + i * tf.tanh(gates[:, :, :, 3])
+    h = o * tf.tanh(c)
+    return h, c
+
 
 
 def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
@@ -80,9 +122,10 @@ def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
 
     """
     with tf.variable_scope(scope):
-        abk = tf.exp(linear(tgt, nk * 3, scope, w_stddev))
+        abk = tf.exp(linear(tgt, nk * 3, "linear_abk", w_stddev))
         # [nb, ntgt, 1, nk]
         b = abk[:, :, tf.newaxis, nk:2*nk]
+        # TODO: be careful for one step version
         k = tf.cumsum(abk[:, :, tf.newaxis, 2*nk:], axis=1)
 
         nsrc = shape(src)[1]
@@ -114,7 +157,9 @@ def net(batch: Dict[str, tf.Tensor], n_vocab: int, n_hidden: int,
         # shift 1 frame in network input
         tgt_input = tf.concat((tf.zeros_like(tgt[:, :1]), tgt[:, :-1]), axis=1)
         h_tgt = linear(tgt_input, n_hidden, "linear_tgt")
-        h_tgt = rnn(h_tgt, n_hidden, "rnn_tgt1")
+
+        init_state = {"h": tf.zeros_like(h_tgt[:, :1])}
+        h_tgt, _state = rnn(h_tgt, init_state, scope="rnn_tgt1")
         ws, attn = graves_attn(h_src, h_tgt, 10, "attn")
         return {
             "ht": ws,

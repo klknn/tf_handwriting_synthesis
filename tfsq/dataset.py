@@ -92,8 +92,7 @@ class TensorExample:
     @classmethod
     def text_to_ids(cls, text: str) -> np.ndarray:
         """Convert text to an ascii-id array."""
-        # TODO: create vocab dict
-        return np.array([ord(c) for c in text], dtype=np.int32)
+        return np.array([STATS["vocab"][c] for c in text], dtype=np.int32)
 
     @classmethod
     def from_raw(cls, x: RawExample) -> TensorExample:

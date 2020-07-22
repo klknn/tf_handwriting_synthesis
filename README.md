@@ -1,4 +1,4 @@
-# Handwriting synthesis in tensorflow
+# tfsq: sequence modeling library for tensorflow
 
 reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 

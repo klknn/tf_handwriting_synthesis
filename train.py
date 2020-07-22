@@ -1,13 +1,11 @@
 #!python3
 """Training script."""
 import itertools
-import os
 
-import requests
 import tensorflow.compat.v1 as tf
 
-import dataset
-import model
+from tfsq import dataset
+from tfsq import model
 
 
 tf.disable_v2_behavior()
@@ -43,6 +41,7 @@ def setup_dataset():
 
 
 def train(batch, scope="model"):
+    """Create a traning graph."""
     ret = model.net(
         batch=batch,
         n_vocab=dataset.STATS["num_vocab"],
@@ -58,6 +57,7 @@ def train(batch, scope="model"):
 
 
 def main(argv):
+    """Run program."""
     del argv
     ds = setup_dataset()
     with tf.Session() as sess:

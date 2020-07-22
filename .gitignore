@@ -8,5 +8,6 @@ data/
 !.gitignore
 !requirements.txt
 !testdata/
+!tfsq/
 
 flycheck_*
