@@ -104,7 +104,6 @@ def lstm_body(xs: tf.Tensor, states) -> tf.Tensor:
     return h, c
 
 
-
 def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
                 w_stddev: float = 0.02) -> tf.Tensor:
     """Compute context vector and attention matrix in Eq. (46-51)
