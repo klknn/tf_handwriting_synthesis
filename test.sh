@@ -8,6 +8,8 @@ echo "=== lint ==="
 
 flake8 . --show-source --statistics --ignore=E203,W503
 
+black --check tfsq
+
 echo "=== type checking ==="
 
 pytype .
@@ -21,5 +23,5 @@ coverage report -i
 
 echo "=== integration test ==="
 
-coverage run --append -m train --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1
+coverage run --append -m tfsq.train --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1
 coverage report -i

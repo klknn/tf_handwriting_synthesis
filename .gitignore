@@ -5,6 +5,7 @@
 !*.md
 !*.yml
 !*.txt
+!*.toml
 !*/
 
 !.gitignore

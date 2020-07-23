@@ -8,7 +8,7 @@ reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 
 ## requirements
 
-- do `pip install -r requirements.txt`
+- `pip install git+https://github.com/klknn/tfsq`
 - register your user/passwd at http://www.fki.inf.unibe.ch/databases/iam-on-line-handwriting-database
 
 ## TODO
@@ -25,7 +25,8 @@ reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 
 After setting up the requirements, try the all-in-one script:
 ```
-python3 train.py --v=1 --num_epochs=100 --batch_size=12 --lr 1e-4 \
+python3 -m tfsq.train \
+  --v=1 --num_epochs=100 --batch_size=12 --lr 1e-4 \
   --root ./data --http_user=... --http_password=...
 ```
 It will download tgz (for the first time), preprocess data, and train neural networks.

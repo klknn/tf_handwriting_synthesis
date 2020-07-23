@@ -1,0 +1,27 @@
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"
+
+[tool.poetry]
+name = "tfsq"
+version = "0.0.1"
+description = "sequence modeling library for tensorflow."
+authors = ["klknn <klknn.gh@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+tensorflow = "^2.2.0"
+requests = "^2.23.0"
+matplotlib = "^3.2.2"
+
+[tool.poetry.dev-dependencies]
+mypy = "*"
+pytype = "*"
+flake8 = "*"
+flake8-docstrings = "*"
+coverage = "*"
+black = "*"
+
+[tool.black]
+line-length = 80
+target-version = ['py37']
