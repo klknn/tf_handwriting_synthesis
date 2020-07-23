@@ -8,6 +8,7 @@
 !*.toml
 !*/
 
+!.flake8
 !.gitignore
 !.gitkeep
 !requirements.txt
@@ -15,5 +16,6 @@
 !tfsq/
 !.github/
 
+venv/
 data/
 flycheck_*

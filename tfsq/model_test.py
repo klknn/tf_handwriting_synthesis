@@ -60,6 +60,10 @@ class ModelTest(tf.test.TestCase):
             for i0 in range(non_diag.shape[0]):
                 for i1 in range(non_diag.shape[1]):
                     for i2 in range(non_diag.shape[2]):
+                        self.assertAlmostEqual(
+                            non_diag[i0, i1, i2, 0, 1],
+                            non_diag[i0, i1, i2, 1, 0],
+                        )
                         np.fill_diagonal(non_diag[i0, i1, i2], 0)
             self.assertTrue(np.all(non_diag >= -1))
             self.assertTrue(np.all(non_diag <= 1))

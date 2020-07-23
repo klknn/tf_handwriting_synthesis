@@ -244,7 +244,11 @@ def graves_attn(
 
 
 def gaussian_mixture(
-    xs: tf.Tensor, n_out, n_gauss: int, scope: str
+    xs: tf.Tensor,
+    n_out,
+    n_gauss: int,
+    scope: str,
+    non_diag_scale: float = 0.01,
 ) -> Dict[str, tf.Tensor]:
     """Transform Gaussian mixture pdf.
 
@@ -266,11 +270,15 @@ def gaussian_mixture(
         nb, nt, _ = shape(xs)
         ys = linear(xs, n_gauss * (1 + n_out + n_out * n_out), "linear_x")
         ys = tf.reshape(ys, [nb, nt, n_gauss, -1])
+        # [batch, time, n_gauss, n_out, n_out]
         c = ys[:, :, :, 1 + n_out :]
         c = tf.reshape(c, [nb, nt, n_gauss, n_out, n_out])
         diag = tf.exp(tf.linalg.diag_part(c))
         cov = tf.tanh(c)
-        cov = tf.linalg.set_diag(cov, diag)
+        upper = tf.linalg.band_part(cov, 0, n_out - 1)
+        non_diag = upper + tf.transpose(upper, [0, 1, 2, 4, 3])
+        non_diag *= non_diag_scale
+        cov = tf.linalg.set_diag(non_diag, diag)
         return {
             "weight": tf.nn.softmax(ys[:, :, :, 0]),
             "mean": ys[:, :, :, 1 : 1 + n_out],
@@ -295,11 +303,6 @@ def gaussian_mixture_pdf(
 
     """
     nb, nt, n_out = shape(xs)
-    n_gauss = shape(weight)[-1]
-    assert shape(weight) == [nb, nt, n_gauss]
-    assert shape(mean) == [nb, nt, n_gauss, n_out]
-    assert shape(cov) == [nb, nt, n_gauss, n_out, n_out]
-
     # [batch, time, n_gauss, 1, n_out]
     xm = (xs[:, :, tf.newaxis] - mean)[:, :, :, tf.newaxis]
     # [batch, time, n_gauss, 1, 1]
@@ -315,12 +318,14 @@ def net(
     batch: Dict[str, tf.Tensor],
     n_vocab: int,
     n_hidden: int,
+    n_gauss: int,
     scope="model",
     w_stddev: float = 0.02,
     rnn_type: type = LSTM,
 ) -> Dict[str, tf.Tensor]:
     """Top-level network definition."""
     with tf.variable_scope(scope):
+        nb = shape(batch["text_ids"])[0]
         embed = tf.get_variable(
             "embed",
             [n_vocab, n_hidden],
@@ -339,10 +344,33 @@ def net(
 
         # forward RNNs
         rnn1 = rnn_type(n_hidden, scope="rnn1", w_stddev=w_stddev)
-        h_tgt, _state = rnn1(h_tgt, rnn1.init_states(h_tgt))
-        ws, attn = graves_attn(h_src, h_tgt, 10, "attn")
+        h1, _s1 = rnn1(h_tgt, rnn1.init_states(h_tgt))
+        # FIXME: mask by text length
+        ws, attn = graves_attn(h_src, h1, 10, "attn")
+
+        rnn2 = rnn_type(n_hidden, scope="rnn2", w_stddev=w_stddev)
+        h2, _s2 = rnn2(ws, rnn2.init_states(ws))
+
+        h_out = linear(h2, n_hidden, "linear_h_out")
+        params = gaussian_mixture(
+            h_out, n_out=2, n_gauss=n_gauss, scope="gauss_param"
+        )
+        stroke_logprob = tf.log(gaussian_mixture_pdf(tgt[:, :, :2], **params))
+        stroke_loss = tf.reduce_sum(
+            batch["strokes_weight"] * -stroke_logprob
+        ) / tf.cast(nb, tf.float32)
+
+        eos_pred = tf.squeeze(tf.sigmoid(linear(h_out, 1, "linear_eos")), -1)
+        eos_logprob = batch["end_flags"] * tf.log(eos_pred)
+        eos_logprob += (1 - batch["end_flags"]) * tf.log(1 - eos_pred)
+        eos_loss = tf.reduce_sum(
+            batch["strokes_weight"] * -eos_logprob
+        ) / tf.cast(nb, tf.float32)
+
         return {
-            "ht": ws,
-            "attn": attn,
-            "num_batch": shape(batch["text_ids"])[0],
+            "loss": stroke_loss + eos_loss,
+            "stroke_loss": stroke_loss,
+            "eos_loss": eos_loss,
+            "attn": attn,  # FIXME: mask
+            "num_batch": nb,
         }

@@ -15,6 +15,7 @@ tf.flags.DEFINE_integer("max_tgt_len", 1024, "max target length.")
 tf.flags.DEFINE_integer("max_src_len", 64, "max source length.")
 tf.flags.DEFINE_integer("log_interval", 10, "logging interval.")
 tf.flags.DEFINE_integer("num_epochs", 10, "epochs.")
+tf.flags.DEFINE_integer("n_gauss", 10, "hidden layer size.")
 tf.flags.DEFINE_integer("hidden_size", 128, "hidden layer size.")
 tf.flags.DEFINE_integer("batch_size", 12, "parallel sequence per step.")
 tf.flags.DEFINE_integer("shuffle_buffer", 1024, "parallel sequence per step.")
@@ -50,13 +51,11 @@ def train(batch, scope="model"):
         batch=batch,
         n_vocab=dataset.STATS["num_vocab"],
         n_hidden=FLAGS.hidden_size,
+        n_gauss=FLAGS.n_gauss,
         scope=scope,
     )
     vs = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scope)
     opt = tf.train.AdamOptimizer(learning_rate=FLAGS.lr)
-
-    # TODO: define proper loss
-    ret["loss"] = tf.reduce_mean(ret["ht"])
     ret["train_op"] = opt.minimize(ret["loss"], var_list=vs)
     return ret
 
@@ -89,7 +88,9 @@ def main(argv):
                             f"epoch: {epoch}, "
                             f"prog: {num_processed:,}/{num_examples:,} = "
                             f"{prog:.3f}%, "
-                            f"loss: {loss:.3f}"
+                            f"loss: {loss:.3f}, "
+                            f"eos_loss: {result['eos_loss']:.3f}, "
+                            f"stroke_loss: {result['stroke_loss']:.3f}"
                         )
                 except tf.errors.OutOfRangeError:
                     break
