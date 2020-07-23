@@ -14,7 +14,7 @@ reproducing Section 5 in https://arxiv.org/pdf/1308.0850.pdf
 ## TODO
 
 - split net modules
-- eos layer
+- dropout
 - validation split https://www.tensorflow.org/datasets/splits
 - biased sampling
 - checkpoint https://www.tensorflow.org/api_docs/python/tf/compat/v1/train/Checkpoint

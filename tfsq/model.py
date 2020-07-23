@@ -6,6 +6,11 @@ import numpy as np
 import tensorflow.compat.v1 as tf
 
 
+def custom_variable_scope(name, reuse=tf.AUTO_REUSE):
+    """Wrap tf.variable_scope with tf.AUTO_REUSE."""
+    return tf.variable_scope(name, reuse=reuse)
+
+
 def shape(x: tf.Tensor) -> List[tf.Tensor]:
     """Deal with dynamic shape in tensorflow cleanly."""
     static = x.shape.as_list()
@@ -28,7 +33,7 @@ def linear(
         float tensor [batch, time, nh].
 
     """
-    with tf.variable_scope(scope):
+    with custom_variable_scope(scope):
         nx = shape(xs)[-1]
         b = tf.get_variable("b", [nh], initializer=tf.constant_initializer(0))
         wx = tf.get_variable(
@@ -82,7 +87,7 @@ class RNN(tf.Module):
             float tensor of [batch, time, new_feat]
 
         """
-        with tf.variable_scope(self.scope):
+        with custom_variable_scope(self.scope):
             return linear(xs, self.nh, "linear_x", self.w_stddev)
 
     def recurrent(
@@ -100,7 +105,7 @@ class RNN(tf.Module):
             updated args for the next iteration.
 
         """
-        with tf.variable_scope(self.scope):
+        with custom_variable_scope(self.scope):
             wh = tf.get_variable(
                 "wh",
                 [self.nh, self.nh],
@@ -124,7 +129,7 @@ class RNN(tf.Module):
             float tensor [batch, time, nh].
 
         """
-        with tf.variable_scope(self.scope):
+        with custom_variable_scope(self.scope):
             ys = self.transform_input(xs)
 
             def cond(i, *_):
@@ -168,7 +173,7 @@ class LSTM(RNN):
             float tensor of [batch, time, new_feat]
 
         """
-        with tf.variable_scope(self.scope):
+        with custom_variable_scope(self.scope):
             return linear(xs, self.nh * 4, "linear_x", self.w_stddev)
 
     def recurrent(
@@ -188,7 +193,7 @@ class LSTM(RNN):
         TODO: peephole connection.
 
         """
-        with tf.variable_scope(self.scope):
+        with custom_variable_scope(self.scope):
             wh = tf.get_variable(
                 "wh",
                 [self.nh, self.nh * 4],
@@ -223,7 +228,7 @@ def graves_attn(
         float tensor [nb, ntgt, nh]
 
     """
-    with tf.variable_scope(scope):
+    with custom_variable_scope(scope):
         abk = tf.exp(linear(tgt, nk * 3, "linear_abk", w_stddev))
         # [nb, ntgt, 1, nk]
         b = abk[:, :, tf.newaxis, nk : 2 * nk]
@@ -266,7 +271,7 @@ def gaussian_mixture(
         - cov [batch, time, n_gauss n_out, n_out] (0 < diag, -1 < non-diag < 1)
 
     """
-    with tf.variable_scope(scope):
+    with custom_variable_scope(scope):
         nb, nt, _ = shape(xs)
         ys = linear(xs, n_gauss * (1 + n_out + n_out * n_out), "linear_x")
         ys = tf.reshape(ys, [nb, nt, n_gauss, -1])
@@ -324,7 +329,7 @@ def net(
     rnn_type: type = LSTM,
 ) -> Dict[str, tf.Tensor]:
     """Top-level network definition."""
-    with tf.variable_scope(scope):
+    with custom_variable_scope(scope):
         nb = shape(batch["text_ids"])[0]
         embed = tf.get_variable(
             "embed",

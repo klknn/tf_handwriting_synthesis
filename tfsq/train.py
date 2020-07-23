@@ -42,10 +42,19 @@ def setup_dataset():
     ds = ds.cache()
     ds = ds.shuffle(FLAGS.shuffle_buffer)
     ds = ds.padded_batch(FLAGS.batch_size)
-    return ds
+    n = dataset.STATS["num_examples"]
+    n_report = n // FLAGS.batch_size // FLAGS.log_interval + 1
+    if n - n_report <= 1 or FLAGS.root == "testdata":
+        tf.logging.warning("too small example to train!")
+        train = ds
+        dev = ds
+    else:
+        train = ds.skip(n_report)
+        dev = ds.take(n_report)
+    return train, dev
 
 
-def train(batch, scope="model"):
+def forward(batch, scope="model", train=True):
     """Create a traning graph."""
     ret = model.net(
         batch=batch,
@@ -54,20 +63,23 @@ def train(batch, scope="model"):
         n_gauss=FLAGS.n_gauss,
         scope=scope,
     )
-    vs = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scope)
-    opt = tf.train.AdamOptimizer(learning_rate=FLAGS.lr)
-    ret["train_op"] = opt.minimize(ret["loss"], var_list=vs)
+    if train:
+        vs = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scope)
+        opt = tf.train.AdamOptimizer(learning_rate=FLAGS.lr)
+        ret["train_op"] = opt.minimize(ret["loss"], var_list=vs)
     return ret
 
 
 def main(argv):
     """Run program."""
     del argv
-    ds = setup_dataset()
+    train_data, dev_data = setup_dataset()
     with tf.Session() as sess:
-        batch = tf.data.make_one_shot_iterator(ds).get_next()
+        batch = tf.data.make_one_shot_iterator(train_data).get_next()
+        dev_batch = tf.data.make_one_shot_iterator(dev_data).get_next()
         tf.logging.info(f"model input: {batch}")
-        ret = train(batch)
+        ret = forward(batch)
+        dev_ret = forward(dev_batch, train=False)
         tf.logging.info(f"model output: {ret}")
 
         tf.global_variables_initializer().run()
@@ -82,15 +94,18 @@ def main(argv):
                     result = sess.run(ret)
                     num_processed += result["num_batch"]
                     prog = num_processed / num_examples * 100
-                    loss = result["loss"]
                     if i % FLAGS.log_interval == 0 or prog == 100:
-                        tf.logging.debug(
+                        dev_result = sess.run(dev_ret)
+                        tf.logging.info(
                             f"epoch: {epoch}, "
                             f"prog: {num_processed:,}/{num_examples:,} = "
                             f"{prog:.3f}%, "
-                            f"loss: {loss:.3f}, "
+                            f"loss: {result['loss']:.3f}, "
                             f"eos_loss: {result['eos_loss']:.3f}, "
-                            f"stroke_loss: {result['stroke_loss']:.3f}"
+                            f"stroke_loss: {result['stroke_loss']:.3f}, "
+                            f"dev_loss: {dev_result['loss']:.3f}, "
+                            f"dev_eos_loss: {dev_result['eos_loss']:.3f}, "
+                            f"dev_stroke_loss: {dev_result['stroke_loss']:.3f}"
                         )
                 except tf.errors.OutOfRangeError:
                     break

@@ -25,7 +25,7 @@ class DatasetTest(tf.test.TestCase):
     def test_load_dataset(self):
         """Test load_tf_dataset."""
         ds = self.dataset
-        self.assertEqual(len(ds), 1)
+        self.assertEqual(len(ds), 5)
         self.assertEqual(ds[0].text, "A MOVE to stop Mr . Gaitskell")
 
     def test_tensor_example(self):
@@ -36,7 +36,7 @@ class DatasetTest(tf.test.TestCase):
     def test_calc_stats(self):
         """Test calc_stats."""
         stats = dataset.calc_stats(self.dataset)
-        self.assertEqual(stats["num_examples"], 1)
+        self.assertEqual(stats["num_examples"], 5)
 
     def test_plot_strokes(self):
         """Test plot_strokes."""
