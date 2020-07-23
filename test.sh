@@ -6,13 +6,13 @@ CUDA_VISIBLE_DEVICES=NoDevFiles
 
 echo "=== lint ==="
 
-flake8 . --show-source --statistics --ignore=E203,W503
+flake8 tfsq --show-source --statistics --ignore=E203,W503
 
 black --check tfsq
 
 echo "=== type checking ==="
 
-pytype .
+pytype tfsq
 
 mypy --ignore-missing-imports .
 

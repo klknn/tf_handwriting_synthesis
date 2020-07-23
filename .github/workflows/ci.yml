@@ -35,6 +35,8 @@ jobs:
         source $HOME/.poetry/env
         poetry install --no-root
     - name: Test
-      run: ./test.sh
+      run: |
+        source $HOME/.poetry/env
+        poetry run ./test.sh
     - name: Codecov
       run: bash <(curl -s https://codecov.io/bash)
