@@ -2,6 +2,7 @@
 from __future__ import annotations
 from typing import Dict, List, Tuple
 
+import numpy as np
 import tensorflow.compat.v1 as tf
 
 
@@ -12,8 +13,9 @@ def shape(x: tf.Tensor) -> List[tf.Tensor]:
     return [dynamic[i] if s is None else s for i, s in enumerate(static)]
 
 
-def linear(xs: tf.Tensor, nh: int, scope: str,
-           w_stddev: float = 0.02) -> tf.Tensor:
+def linear(
+    xs: tf.Tensor, nh: int, scope: str, w_stddev: float = 0.02
+) -> tf.Tensor:
     """Transform a sequence by linear weight and bias.
 
     Args:
@@ -30,8 +32,10 @@ def linear(xs: tf.Tensor, nh: int, scope: str,
         nx = shape(xs)[-1]
         b = tf.get_variable("b", [nh], initializer=tf.constant_initializer(0))
         wx = tf.get_variable(
-            "wx", [nx, nh],
-            initializer=tf.random_normal_initializer(stddev=w_stddev))
+            "wx",
+            [nx, nh],
+            initializer=tf.random_normal_initializer(stddev=w_stddev),
+        )
         return tf.matmul(xs, wx) + b
 
 
@@ -82,8 +86,7 @@ class RNN(tf.Module):
             return linear(xs, self.nh, "linear_x", self.w_stddev)
 
     def recurrent(
-            self, i: tf.Tensor, ys: tf.Tensor,
-            hs: tf.Tensor, states: RNN.States
+        self, i: tf.Tensor, ys: tf.Tensor, hs: tf.Tensor, states: RNN.States
     ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor, RNN.States]:
         """Recurrent output with states.
 
@@ -99,15 +102,15 @@ class RNN(tf.Module):
         """
         with tf.variable_scope(self.scope):
             wh = tf.get_variable(
-                "wh", [self.nh, self.nh],
-                initializer=tf.random_normal_initializer(stddev=self.w_stddev))
+                "wh",
+                [self.nh, self.nh],
+                initializer=tf.random_normal_initializer(stddev=self.w_stddev),
+            )
             h = tf.tanh(ys[:, tf.newaxis, i] + tf.matmul(states["out"], wh))
             return i + 1, ys, tf.concat((hs, h), axis=1), {"out": h}
 
     def __call__(
-            self,
-            xs: tf.Tensor,
-            states: Dict[str, tf.Tensor]
+        self, xs: tf.Tensor, states: Dict[str, tf.Tensor]
     ) -> Tuple[tf.Tensor, Dict[str, tf.Tensor]]:
         """Apply recurrent neural networks.
 
@@ -169,8 +172,7 @@ class LSTM(RNN):
             return linear(xs, self.nh * 4, "linear_x", self.w_stddev)
 
     def recurrent(
-            self, i: tf.Tensor, ys: tf.Tensor,
-            hs: tf.Tensor, states: RNN.States
+        self, i: tf.Tensor, ys: tf.Tensor, hs: tf.Tensor, states: RNN.States
     ) -> Tuple[tf.Tensor, tf.Tensor, tf.Tensor, RNN.States]:
         """Recurrent output with states.
 
@@ -188,8 +190,10 @@ class LSTM(RNN):
         """
         with tf.variable_scope(self.scope):
             wh = tf.get_variable(
-                "wh", [self.nh, self.nh * 4],
-                initializer=tf.random_normal_initializer(stddev=self.w_stddev))
+                "wh",
+                [self.nh, self.nh * 4],
+                initializer=tf.random_normal_initializer(stddev=self.w_stddev),
+            )
             # [nb, 1, nh * 4]
             zs = ys[:, tf.newaxis, i] + tf.matmul(states["out"], wh)
             gates = tf.reshape(zs, [-1, 1, self.nh, 4])
@@ -203,8 +207,9 @@ class LSTM(RNN):
             return i + 1, ys, tf.concat((hs, out), axis=1), new_states
 
 
-def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
-                w_stddev: float = 0.02) -> tf.Tensor:
+def graves_attn(
+    src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str, w_stddev: float = 0.02
+) -> tf.Tensor:
     """Compute context vector and attention matrix.
 
     See also: Eq. (46-51) A. Graves https://arxiv.org/pdf/1308.0850.pdf
@@ -221,9 +226,9 @@ def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
     with tf.variable_scope(scope):
         abk = tf.exp(linear(tgt, nk * 3, "linear_abk", w_stddev))
         # [nb, ntgt, 1, nk]
-        b = abk[:, :, tf.newaxis, nk:2*nk]
+        b = abk[:, :, tf.newaxis, nk : 2 * nk]
         # TODO: be careful for one step version
-        k = tf.cumsum(abk[:, :, tf.newaxis, 2*nk:], axis=1)
+        k = tf.cumsum(abk[:, :, tf.newaxis, 2 * nk :], axis=1)
 
         nsrc = shape(src)[1]
         u = tf.reshape(tf.range(nsrc, dtype=k.dtype), (1, 1, nsrc, 1))
@@ -238,21 +243,96 @@ def graves_attn(src: tf.Tensor, tgt: tf.Tensor, nk: int, scope: str,
         return w, attn
 
 
+def gaussian_mixture(
+    xs: tf.Tensor, n_out, n_gauss: int, scope: str
+) -> Dict[str, tf.Tensor]:
+    """Transform Gaussian mixture pdf.
+
+    Eq. (18 - 25) in A. Graves https://arxiv.org/pdf/1308.0850.pdf
+
+    Args:
+        xs: float tensor of [batch, time, feat]
+        n_out: number of output dim.
+        n_gauss: number of Gaussians.
+
+    Returns:
+        dict of three float tensors:
+        - weight [batch, time, n_gauss] (0 < w < 1, sum(w) = 1)
+        - mean [batch, time, n_gauss, n_out]
+        - cov [batch, time, n_gauss n_out, n_out] (0 < diag, -1 < non-diag < 1)
+
+    """
+    with tf.variable_scope(scope):
+        nb, nt, _ = shape(xs)
+        ys = linear(xs, n_gauss * (1 + n_out + n_out * n_out), "linear_x")
+        ys = tf.reshape(ys, [nb, nt, n_gauss, -1])
+        c = ys[:, :, :, 1 + n_out :]
+        c = tf.reshape(c, [nb, nt, n_gauss, n_out, n_out])
+        diag = tf.exp(tf.linalg.diag_part(c))
+        cov = tf.tanh(c)
+        cov = tf.linalg.set_diag(cov, diag)
+        return {
+            "weight": tf.nn.softmax(ys[:, :, :, 0]),
+            "mean": ys[:, :, :, 1 : 1 + n_out],
+            "cov": cov,
+        }
+
+
+def gaussian_mixture_pdf(
+    xs: tf.Tensor, weight: tf.Tensor, mean: tf.Tensor, cov: tf.Tensor
+) -> tf.Tensor:
+    """Compute pdf of xs on Gaussian mixtures.
+
+    Args:
+        xs: float tensor of [batch, time, n_out]
+        weight: float tensor of [batch, time, n_gauss] (0 < w < 1, sum(w) = 1)
+        mean: float tensor of [batch, time, n_gauss, n_out]
+        cov: float tensor of [batch, time, n_gauss n_out, n_out]
+            (0 < diag, -1 < non-diag < 1)
+
+    Returns:
+        float tensor of [batch, time]
+
+    """
+    nb, nt, n_out = shape(xs)
+    n_gauss = shape(weight)[-1]
+    assert shape(weight) == [nb, nt, n_gauss]
+    assert shape(mean) == [nb, nt, n_gauss, n_out]
+    assert shape(cov) == [nb, nt, n_gauss, n_out, n_out]
+
+    # [batch, time, n_gauss, 1, n_out]
+    xm = (xs[:, :, tf.newaxis] - mean)[:, :, :, tf.newaxis]
+    # [batch, time, n_gauss, 1, 1]
+    num = tf.exp(-0.5 * xm @ cov @ tf.transpose(xm, [0, 1, 2, 4, 3]))
+    # [batch, time, n_gauss]
+    num = tf.squeeze(num, [-2, -1])
+    den = (2 * np.pi) ** (1 / n_out) * tf.linalg.det(cov) ** 0.5
+    # [batch, time]
+    return tf.reduce_sum(weight * num / den, -1)
+
+
 def net(
-        batch: Dict[str, tf.Tensor], n_vocab: int, n_hidden: int,
-        scope="model", w_stddev: float = 0.02, rnn_type: type = LSTM,
+    batch: Dict[str, tf.Tensor],
+    n_vocab: int,
+    n_hidden: int,
+    scope="model",
+    w_stddev: float = 0.02,
+    rnn_type: type = LSTM,
 ) -> Dict[str, tf.Tensor]:
     """Top-level network definition."""
     with tf.variable_scope(scope):
         embed = tf.get_variable(
-            "embed", [n_vocab, n_hidden],
-            initializer=tf.random_normal_initializer(stddev=w_stddev))
+            "embed",
+            [n_vocab, n_hidden],
+            initializer=tf.random_normal_initializer(stddev=w_stddev),
+        )
         h_src = tf.gather(embed, batch["text_ids"], axis=0)  # [nb, nt, nh]
 
         # concat x, y, eos (omit time stamp), [batch, ntgt, 3]
         tgt = tf.concat(
             (batch["strokes"][:, :, :2], batch["end_flags"][:, :, tf.newaxis]),
-            axis=-1)
+            axis=-1,
+        )
         # shift 1 frame in network input
         tgt_input = tf.concat((tf.zeros_like(tgt[:, :1]), tgt[:, :-1]), axis=1)
         h_tgt = linear(tgt_input, n_hidden, "linear_tgt")
@@ -264,5 +344,5 @@ def net(
         return {
             "ht": ws,
             "attn": attn,
-            "num_batch": shape(batch["text_ids"])[0]
+            "num_batch": shape(batch["text_ids"])[0],
         }

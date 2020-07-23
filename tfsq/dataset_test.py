@@ -4,8 +4,8 @@ import tensorflow.compat.v1 as tf
 
 from tfsq import dataset
 
-
-matplotlib.use('Agg')
+# disable tk
+matplotlib.use("Agg")
 tf.disable_eager_execution()
 
 
@@ -19,8 +19,7 @@ class DatasetTest(tf.test.TestCase):
     def test_extract_quoted(self):
         """Test extract_quoted."""
         self.assertEqual(
-            dataset.extract_quoted('a="1"b"b""3.0"'),
-            ["1", "b", "3.0"],
+            dataset.extract_quoted('a="1"b"b""3.0"'), ["1", "b", "3.0"],
         )
 
     def test_load_dataset(self):

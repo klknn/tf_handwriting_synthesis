@@ -35,6 +35,39 @@ class ModelTest(tf.test.TestCase):
                 tf.global_variables_initializer().run()
                 sess.run([y, states], {x: np.zeros((5, 3, 4))})
 
+    def test_gaussian_mixture(self):
+        """Tests for gaussian_mixture."""
+        with self.session() as sess:
+            x = tf.random.normal((2, 3, 4))
+            y = model.gaussian_mixture(x, n_out=2, n_gauss=5, scope="gauss")
+            z = tf.zeros((2, 3, 2))
+            p = model.gaussian_mixture_pdf(z, **y)
+
+            tf.global_variables_initializer().run()
+            actual, actual_p = sess.run([y, p])
+            self.assertEqual(actual["weight"].shape, (2, 3, 5))
+            self.assertEqual(actual["mean"].shape, (2, 3, 5, 2))
+            self.assertEqual(actual["cov"].shape, (2, 3, 5, 2, 2))
+            # check tf.softmax on weight
+            np.testing.assert_allclose(
+                actual["weight"].sum(-1), np.float32(1), rtol=1e-6
+            )
+            diag = actual["cov"].transpose(3, 4, 0, 1, 2).diagonal()
+            # check tf.exp on cov diag
+            self.assertTrue(np.all(diag >= 0))
+            # check tf.tanh on cov non-diag
+            non_diag = actual["cov"].copy()
+            for i0 in range(non_diag.shape[0]):
+                for i1 in range(non_diag.shape[1]):
+                    for i2 in range(non_diag.shape[2]):
+                        np.fill_diagonal(non_diag[i0, i1, i2], 0)
+            self.assertTrue(np.all(non_diag >= -1))
+            self.assertTrue(np.all(non_diag <= 1))
+            # check prob
+            print(actual_p)
+            self.assertTrue(np.all(actual_p <= 1))
+            self.assertTrue(np.all(actual_p >= 0))
+
 
 if __name__ == "__main__":
     tf.test.main()

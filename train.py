@@ -32,9 +32,12 @@ def setup_dataset():
     if FLAGS.download:
         dataset.download_tgz(FLAGS.http_user, FLAGS.http_password, FLAGS.root)
     ds = dataset.load_tf_dataset(root=FLAGS.root)
-    ds = ds.filter(lambda x: (
-        x["strokes_length"] <= FLAGS.max_tgt_len
-        and x["text_length"] <= FLAGS.max_src_len))
+    ds = ds.filter(
+        lambda x: (
+            x["strokes_length"] <= FLAGS.max_tgt_len
+            and x["text_length"] <= FLAGS.max_src_len
+        )
+    )
     ds = ds.cache()
     ds = ds.shuffle(FLAGS.shuffle_buffer)
     ds = ds.padded_batch(FLAGS.batch_size)
@@ -47,7 +50,8 @@ def train(batch, scope="model"):
         batch=batch,
         n_vocab=dataset.STATS["num_vocab"],
         n_hidden=FLAGS.hidden_size,
-        scope=scope)
+        scope=scope,
+    )
     vs = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope=scope)
     opt = tf.train.AdamOptimizer(learning_rate=FLAGS.lr)
 
@@ -85,7 +89,8 @@ def main(argv):
                             f"epoch: {epoch}, "
                             f"prog: {num_processed:,}/{num_examples:,} = "
                             f"{prog:.3f}%, "
-                            f"loss: {loss:.3f}")
+                            f"loss: {loss:.3f}"
+                        )
                 except tf.errors.OutOfRangeError:
                     break
             # TODO: save checkpoints

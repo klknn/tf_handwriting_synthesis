@@ -6,7 +6,7 @@ CUDA_VISIBLE_DEVICES=NoDevFiles
 
 echo "=== lint ==="
 
-flake8 . --show-source --statistics
+flake8 . --show-source --statistics --ignore=E203,W503
 
 echo "=== type checking ==="
 

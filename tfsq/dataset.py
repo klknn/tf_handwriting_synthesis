@@ -14,21 +14,6 @@ import requests
 import tensorflow.compat.v1 as tf
 
 
-# calculated by `$ python3 ./dataset.py`
-STATS = {
-    "num_examples": 12140,
-    'num_stroke_frames': 7611737,
-    'max_stroke_len': 1940,
-    'max_text_len': 64,
-    'mean': np.array(
-        [3.52694747e+03, 3.27328457e+03, 1.37348168e+07], dtype=np.float32),
-    'stddev': np.array(
-        [2.71751375e+04, 2.54106321e+04, 1.01035389e+08], dtype=np.float32),
-    'num_vocab': 81,
-    'vocab': {' ': 0, '!': 1, '"': 2, '#': 3, '&': 4, "'": 5, '(': 6, ')': 7, '*': 8, '+': 9, ',': 10, '-': 11, '.': 12, '/': 13, '0': 14, '1': 15, '2': 16, '3': 17, '4': 18, '5': 19, '6': 20, '7': 21, '8': 22, '9': 23, ':': 24, ';': 25, '?': 26, 'A': 27, 'B': 28, 'C': 29, 'D': 30, 'E': 31, 'F': 32, 'G': 33, 'H': 34, 'I': 35, 'J': 36, 'K': 37, 'L': 38, 'M': 39, 'N': 40, 'O': 41, 'P': 42, 'Q': 43, 'R': 44, 'S': 45, 'T': 46, 'U': 47, 'V': 48, 'W': 49, 'X': 50, 'Y': 51, 'Z': 52, '[': 53, ']': 54, 'a': 55, 'b': 56, 'c': 57, 'd': 58, 'e': 59, 'f': 60, 'g': 61, 'h': 62, 'i': 63, 'j': 64, 'k': 65, 'l': 66, 'm': 67, 'n': 68, 'o': 69, 'p': 70, 'q': 71, 'r': 72, 's': 73, 't': 74, 'u': 75, 'v': 76, 'w': 77, 'x': 78, 'y': 79, 'z': 80}  # noqa: E501
-}
-
-
 @dataclasses.dataclass
 class ExamplePath:
     """Path struct to load Example."""
@@ -101,6 +86,7 @@ class TensorExample:
     @classmethod
     def from_raw(cls, x: RawExample) -> TensorExample:
         """Load a raw example."""
+        # TODO: do these inside tf.data.Dataset
         raw_strokes = np.concatenate(x.strokes)
         strokes = (raw_strokes - STATS["mean"]) / STATS["stddev"]
         end_flags = np.zeros(len(strokes), dtype=np.float32)
@@ -108,7 +94,7 @@ class TensorExample:
         t = 0
         for sl in strokes_lengths:
             t += sl
-            end_flags[t-1] = 1
+            end_flags[t - 1] = 1
         return TensorExample(
             text=x.text,
             text_ids=cls.text_to_ids(x.text),
@@ -125,7 +111,6 @@ class TensorExample:
 
 def calc_stats(xs: Iterable[RawExample]) -> Dict[str, Any]:
     """Calculate statistics over dataset."""
-    # TODO: calc vocab
     n = 0
     num_examples = 0
     mean = np.zeros(3, dtype=np.float32)
@@ -154,13 +139,13 @@ def calc_stats(xs: Iterable[RawExample]) -> Dict[str, Any]:
         "mean": mean,
         "stddev": (mean2 - mean ** 2) ** 0.5,
         "num_vocab": len(vocab),
-        "vocab": vocab_dict
+        "vocab": vocab_dict,
     }
 
 
 def extract_quoted(text: str) -> List[str]:
     """Extract quoted values in str."""
-    return re.findall(r'\"(.+?)\"', text)
+    return re.findall(r"\"(.+?)\"", text)
 
 
 def load_strokes(path: str) -> List[np.ndarray]:
@@ -188,7 +173,7 @@ def plot_strokes(strokes: List[np.ndarray]) -> plt.Figure:
     fig = plt.figure()
     gca = fig.gca()
     # set x/y axis to equal scales
-    gca.set_aspect('equal', adjustable='box')
+    gca.set_aspect("equal", adjustable="box")
     # low val to top, high to bottom
     gca.invert_yaxis()
     ax = fig.add_subplot()
@@ -237,9 +222,11 @@ def load_dataset(root: str) -> Iterator[RawExample]:
 
 def load_tf_dataset(root: str) -> tf.data.Dataset:
     """Load tf.data.Dataset."""
+
     def gen():
         for raw in load_dataset(root):
             yield dataclasses.asdict(TensorExample.from_raw(raw))
+
     return tf.data.Dataset.from_generator(
         generator=gen,
         output_types=TensorExample.types,
@@ -259,12 +246,14 @@ def download_tgz(username: str, password: str, root: str):
         if username == "" or password == "":
             raise ValueError(
                 "Register username and password at http://www.fki.inf.unibe.ch"
-                "/databases/iam-on-line-handwriting-database")
+                "/databases/iam-on-line-handwriting-database"
+            )
 
         tf.logging.info(f"Downloading {fname}.")
         r = requests.get(
             f"http://www.fki.inf.unibe.ch/DBs/iamOnDB/data/{fname}",
-            auth=(username, password))
+            auth=(username, password),
+        )
         r.raise_for_status()
 
         # process tarfile
@@ -275,6 +264,105 @@ def download_tgz(username: str, password: str, root: str):
         with tarfile.open(fname, "r") as t:
             t.extractall()
         os.chdir(cwd)
+
+
+# calculated by `$ python3 ./dataset.py`
+STATS = {
+    "num_examples": 12140,
+    "num_stroke_frames": 7611737,
+    "max_stroke_len": 1940,
+    "max_text_len": 64,
+    "mean": np.array(
+        [3.52694747e03, 3.27328457e03, 1.37348168e07], dtype=np.float32
+    ),
+    "stddev": np.array(
+        [2.71751375e04, 2.54106321e04, 1.01035389e08], dtype=np.float32
+    ),
+    "num_vocab": 81,
+    "vocab": {
+        " ": 0,
+        "!": 1,
+        '"': 2,
+        "#": 3,
+        "&": 4,
+        "'": 5,
+        "(": 6,
+        ")": 7,
+        "*": 8,
+        "+": 9,
+        ",": 10,
+        "-": 11,
+        ".": 12,
+        "/": 13,
+        "0": 14,
+        "1": 15,
+        "2": 16,
+        "3": 17,
+        "4": 18,
+        "5": 19,
+        "6": 20,
+        "7": 21,
+        "8": 22,
+        "9": 23,
+        ":": 24,
+        ";": 25,
+        "?": 26,
+        "A": 27,
+        "B": 28,
+        "C": 29,
+        "D": 30,
+        "E": 31,
+        "F": 32,
+        "G": 33,
+        "H": 34,
+        "I": 35,
+        "J": 36,
+        "K": 37,
+        "L": 38,
+        "M": 39,
+        "N": 40,
+        "O": 41,
+        "P": 42,
+        "Q": 43,
+        "R": 44,
+        "S": 45,
+        "T": 46,
+        "U": 47,
+        "V": 48,
+        "W": 49,
+        "X": 50,
+        "Y": 51,
+        "Z": 52,
+        "[": 53,
+        "]": 54,
+        "a": 55,
+        "b": 56,
+        "c": 57,
+        "d": 58,
+        "e": 59,
+        "f": 60,
+        "g": 61,
+        "h": 62,
+        "i": 63,
+        "j": 64,
+        "k": 65,
+        "l": 66,
+        "m": 67,
+        "n": 68,
+        "o": 69,
+        "p": 70,
+        "q": 71,
+        "r": 72,
+        "s": 73,
+        "t": 74,
+        "u": 75,
+        "v": 76,
+        "w": 77,
+        "x": 78,
+        "y": 79,
+        "z": 80,
+    },
+}
 
 
 if __name__ == "__main__":
