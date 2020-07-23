@@ -3,5 +3,6 @@
 !*.bat
 !*.md
 !Makefile
+!*/
 
 _build/*

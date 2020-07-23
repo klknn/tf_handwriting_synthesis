@@ -9,6 +9,7 @@
 !*/
 
 !.gitignore
+!.gitkeep
 !requirements.txt
 !testdata/
 !tfsq/
