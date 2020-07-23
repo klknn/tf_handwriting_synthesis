@@ -152,7 +152,7 @@
 
 <dl class="py function">
 <dt id="tfsq.model.gaussian_mixture">
-<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">gaussian_mixture</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">n_out</span></em>, <em class="sig-param"><span class="n">n_gauss</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.gaussian_mixture" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">gaussian_mixture</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">n_out</span></em>, <em class="sig-param"><span class="n">n_gauss</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">non_diag_scale</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.01</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.gaussian_mixture" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform Gaussian mixture pdf.</p>
 <p>Eq. (18 - 25) in A. Graves <a class="reference external" href="https://arxiv.org/pdf/1308.0850.pdf">https://arxiv.org/pdf/1308.0850.pdf</a></p>
 <dl class="field-list simple">
@@ -237,7 +237,7 @@
 
 <dl class="py function">
 <dt id="tfsq.model.net">
-<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">net</code><span class="sig-paren">(</span><em class="sig-param">batch: Dict[str, tensorflow.python.framework.ops.Tensor], n_vocab: int, n_hidden: int, scope='model', w_stddev: float = 0.02, rnn_type: type = &lt;class 'tfsq.model.LSTM'&gt;</em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.net" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">net</code><span class="sig-paren">(</span><em class="sig-param">batch: Dict[str, tensorflow.python.framework.ops.Tensor], n_vocab: int, n_hidden: int, n_gauss: int, scope='model', w_stddev: float = 0.02, rnn_type: type = &lt;class 'tfsq.model.LSTM'&gt;</em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.net" title="Permalink to this definition">¶</a></dt>
 <dd><p>Top-level network definition.</p>
 </dd></dl>
 
