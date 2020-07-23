@@ -1,0 +1,7 @@
+!*.py
+!*.rst
+!*.bat
+!*.md
+!Makefile
+
+_build/*

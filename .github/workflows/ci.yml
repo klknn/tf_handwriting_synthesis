@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7]
+        python-version: [3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
@@ -23,14 +23,30 @@ jobs:
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
-        curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
-        source $HOME/.poetry/env
-        poetry install --no-root
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Install test deps
+      run: pip install -U mypy pytype flake8 flake8-docstrings coverage black
     - name: Test
-      run: |
-        source $HOME/.poetry/env
-        poetry run ./test.sh
+      run: ./test.sh
     - name: Codecov
       run: bash <(curl -s https://codecov.io/bash)
+
+    - name: Install doc deps
+      run: pip install -U sphinx
+    - name: Generate doc
+      run: ./doc.sh
+    - name: Deploy doc
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./docs/_build/html
