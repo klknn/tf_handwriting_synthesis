@@ -20,7 +20,7 @@ pytype = "*"
 flake8 = "*"
 flake8-docstrings = "*"
 coverage = "*"
-black = "*"
+black = "^19.10b0"
 
 [tool.black]
 line-length = 80
