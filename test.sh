@@ -23,5 +23,5 @@ coverage report -i
 
 echo "=== integration test ==="
 
-coverage run --append -m tfsq.train --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1
+coverage run --append -m tfsq.train --v=1 --num_epochs=1 --root testdata --download=false --log_interval=1 --hidden_size=4 --resume=testdata/checkpoint/ep0_it1
 coverage report -i

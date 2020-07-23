@@ -1,6 +1,7 @@
 #!python3
 """Training script."""
 import itertools
+import os
 
 import tensorflow.compat.v1 as tf
 
@@ -20,7 +21,9 @@ tf.flags.DEFINE_integer("hidden_size", 128, "hidden layer size.")
 tf.flags.DEFINE_integer("batch_size", 12, "parallel sequence per step.")
 tf.flags.DEFINE_integer("shuffle_buffer", 1024, "parallel sequence per step.")
 tf.flags.DEFINE_string("root", "data", "root data dir.")
+tf.flags.DEFINE_string("checkpoint", "checkpoint", "dir to save models.")
 tf.flags.DEFINE_bool("download", True, "download data or not.")
+tf.flags.DEFINE_string("resume", None, "resume training or not.")
 tf.flags.DEFINE_string("http_user", "", "username to download data.")
 tf.flags.DEFINE_string("http_password", "", "password to download data.")
 
@@ -84,6 +87,11 @@ def main(argv):
 
         tf.global_variables_initializer().run()
 
+        saver = tf.train.Saver()
+        if FLAGS.resume:
+            # TODO: test resume
+            saver.restore(sess, FLAGS.resume)
+
         # TODO: setup tensorboard
         for epoch in range(FLAGS.num_epochs):
             tf.logging.info(f"epoch: {epoch}")
@@ -107,6 +115,10 @@ def main(argv):
                             f"dev_eos_loss: {dev_result['eos_loss']:.3f}, "
                             f"dev_stroke_loss: {dev_result['stroke_loss']:.3f}"
                         )
+                        path = os.path.join(
+                            FLAGS.checkpoint, f"ep{epoch}_it{i}"
+                        )
+                        saver.save(sess, path)
                 except tf.errors.OutOfRangeError:
                     break
             # TODO: save checkpoints
