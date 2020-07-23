@@ -10,7 +10,7 @@ from tfsq import model
 
 tf.disable_v2_behavior()
 
-tf.flags.DEFINE_float("lr", 0.01, "learning rate.")
+tf.flags.DEFINE_float("lr", 1e-4, "learning rate.")
 tf.flags.DEFINE_integer("max_tgt_len", 1024, "max target length.")
 tf.flags.DEFINE_integer("max_src_len", 64, "max source length.")
 tf.flags.DEFINE_integer("log_interval", 10, "logging interval.")
