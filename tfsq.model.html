@@ -1,0 +1,337 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tfsq.model module &#8212; tfsq  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tfsq.train module" href="tfsq.train.html" />
+    <link rel="prev" title="tfsq.dataset module" href="tfsq.dataset.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tfsq.model">
+<span id="tfsq-model-module"></span><h1>tfsq.model module<a class="headerlink" href="#module-tfsq.model" title="Permalink to this headline">¶</a></h1>
+<p>Neural network model.</p>
+<dl class="py class">
+<dt id="tfsq.model.LSTM">
+<em class="property">class </em><code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">LSTM</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nh</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">w_stddev</span><span class="o">=</span><span class="default_value">0.02</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.model.LSTM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#tfsq.model.RNN" title="tfsq.model.RNN"><code class="xref py py-class docutils literal notranslate"><span class="pre">tfsq.model.RNN</span></code></a></p>
+<p>Long short-term memory net.</p>
+<dl class="py method">
+<dt id="tfsq.model.LSTM.init_states">
+<code class="sig-name descname">init_states</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.LSTM.init_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xs</strong> – float tensor of [batch, time, feat]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>states used in <cite>recurrent</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.model.LSTM.recurrent">
+<code class="sig-name descname">recurrent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">ys</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">hs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">states</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#tfsq.model.LSTM.recurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recurrent output with states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – frame counter (int).</p></li>
+<li><p><strong>ys</strong> – output of <cite>transform_input</cite>.</p></li>
+<li><p><strong>hs</strong> – final output of <cite>__call__</cite>.</p></li>
+<li><p><strong>states</strong> – truncated state dict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated args for the next iteration.</p>
+</dd>
+</dl>
+<p>TODO: peephole connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.model.LSTM.transform_input">
+<code class="sig-name descname">transform_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#tfsq.model.LSTM.transform_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xs</strong> – float tensor of [batch, time, feat]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float tensor of [batch, time, new_feat]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="tfsq.model.RNN">
+<em class="property">class </em><code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">RNN</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">nh</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">w_stddev</span><span class="o">=</span><span class="default_value">0.02</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.model.RNN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tensorflow.python.module.module.Module</span></code></p>
+<p>Basic recurrent neural network.</p>
+<dl class="py attribute">
+<dt id="tfsq.model.RNN.States">
+<code class="sig-name descname">States</code><em class="property"> = typing.Dict[str, tensorflow.python.framework.ops.Tensor]</em><a class="headerlink" href="#tfsq.model.RNN.States" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.model.RNN.init_states">
+<code class="sig-name descname">init_states</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.RNN.init_states" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xs</strong> – float tensor of [batch, time, feat]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>states used in <cite>recurrent</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.model.RNN.recurrent">
+<code class="sig-name descname">recurrent</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">i</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">ys</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">hs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">states</span><span class="p">:</span> <span class="n">Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Tuple<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">, </span>Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><span class="p">]</span><a class="headerlink" href="#tfsq.model.RNN.recurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Recurrent output with states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>i</strong> – frame counter (int).</p></li>
+<li><p><strong>ys</strong> – output of <cite>transform_input</cite>.</p></li>
+<li><p><strong>hs</strong> – final output of <cite>__call__</cite>.</p></li>
+<li><p><strong>states</strong> – truncated state dict.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>updated args for the next iteration.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.model.RNN.transform_input">
+<code class="sig-name descname">transform_input</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#tfsq.model.RNN.transform_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform input sequence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>xs</strong> – float tensor of [batch, time, feat]</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float tensor of [batch, time, new_feat]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.gaussian_mixture">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">gaussian_mixture</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">n_out</span></em>, <em class="sig-param"><span class="n">n_gauss</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.gaussian_mixture" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform Gaussian mixture pdf.</p>
+<p>Eq. (18 - 25) in A. Graves <a class="reference external" href="https://arxiv.org/pdf/1308.0850.pdf">https://arxiv.org/pdf/1308.0850.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> – float tensor of [batch, time, feat]</p></li>
+<li><p><strong>n_out</strong> – number of output dim.</p></li>
+<li><p><strong>n_gauss</strong> – number of Gaussians.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p>weight [batch, time, n_gauss] (0 &lt; w &lt; 1, sum(w) = 1)</p></li>
+<li><p>mean [batch, time, n_gauss, n_out]</p></li>
+<li><p>cov [batch, time, n_gauss n_out, n_out] (0 &lt; diag, -1 &lt; non-diag &lt; 1)</p></li>
+</ul>
+</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>dict of three float tensors</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.gaussian_mixture_pdf">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">gaussian_mixture_pdf</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">weight</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">mean</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">cov</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#tfsq.model.gaussian_mixture_pdf" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute pdf of xs on Gaussian mixtures.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> – float tensor of [batch, time, n_out]</p></li>
+<li><p><strong>weight</strong> – float tensor of [batch, time, n_gauss] (0 &lt; w &lt; 1, sum(w) = 1)</p></li>
+<li><p><strong>mean</strong> – float tensor of [batch, time, n_gauss, n_out]</p></li>
+<li><p><strong>cov</strong> – float tensor of [batch, time, n_gauss n_out, n_out]
+(0 &lt; diag, -1 &lt; non-diag &lt; 1)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float tensor of [batch, time]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.graves_attn">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">graves_attn</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">src</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">tgt</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">nk</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">w_stddev</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.02</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#tfsq.model.graves_attn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute context vector and attention matrix.</p>
+<p>See also: Eq. (46-51) A. Graves <a class="reference external" href="https://arxiv.org/pdf/1308.0850.pdf">https://arxiv.org/pdf/1308.0850.pdf</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>src</strong> – float tensor [nb, nsrc, nh]</p></li>
+<li><p><strong>tgt</strong> – float tensor [nb, ntgt, ng]</p></li>
+<li><p><strong>nk</strong> – number of Gaussians in attention</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float tensor [nb, ntgt, nh]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.linear">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">linear</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em>, <em class="sig-param"><span class="n">nh</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">scope</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">w_stddev</span><span class="p">:</span> <span class="n">float</span> <span class="o">=</span> <span class="default_value">0.02</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.framework.ops.Tensor<a class="headerlink" href="#tfsq.model.linear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transform a sequence by linear weight and bias.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xs</strong> – float tensor [batch, time, feat].</p></li>
+<li><p><strong>nh</strong> – number of output dim.</p></li>
+<li><p><strong>scope</strong> – variable scope name.</p></li>
+<li><p><strong>w_stddev</strong> – weight initialization scale.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>float tensor [batch, time, nh].</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.net">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">net</code><span class="sig-paren">(</span><em class="sig-param">batch: Dict[str, tensorflow.python.framework.ops.Tensor], n_vocab: int, n_hidden: int, scope='model', w_stddev: float = 0.02, rnn_type: type = &lt;class 'tfsq.model.LSTM'&gt;</em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.net" title="Permalink to this definition">¶</a></dt>
+<dd><p>Top-level network definition.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.model.shape">
+<code class="sig-prename descclassname">tfsq.model.</code><code class="sig-name descname">shape</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n">tensorflow.python.framework.ops.Tensor</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>tensorflow.python.framework.ops.Tensor<span class="p">]</span><a class="headerlink" href="#tfsq.model.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deal with dynamic shape in tensorflow cleanly.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">tfsq</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">tfsq</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tfsq.html">tfsq package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tfsq.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="tfsq.dataset.html">tfsq.dataset module</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">tfsq.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tfsq.train.html">tfsq.train module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tfsq.html#module-tfsq">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">tfsq</a><ul>
+  <li><a href="tfsq.html">tfsq package</a><ul>
+      <li>Previous: <a href="tfsq.dataset.html" title="previous chapter">tfsq.dataset module</a></li>
+      <li>Next: <a href="tfsq.train.html" title="next chapter">tfsq.train module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, klknn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tfsq.model.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

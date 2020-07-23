@@ -1,0 +1,309 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>tfsq.dataset module &#8212; tfsq  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="tfsq.model module" href="tfsq.model.html" />
+    <link rel="prev" title="tfsq package" href="tfsq.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="module-tfsq.dataset">
+<span id="tfsq-dataset-module"></span><h1>tfsq.dataset module<a class="headerlink" href="#module-tfsq.dataset" title="Permalink to this headline">¶</a></h1>
+<p>Dataset module.</p>
+<dl class="py class">
+<dt id="tfsq.dataset.ExamplePath">
+<em class="property">class </em><code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">ExamplePath</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">strokes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em>, <em class="sig-param"><span class="n">prefix</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.dataset.ExamplePath" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Path struct to load Example.</p>
+<dl class="py attribute">
+<dt id="tfsq.dataset.ExamplePath.prefix">
+<code class="sig-name descname">prefix</code><em class="property">: str</em><a class="headerlink" href="#tfsq.dataset.ExamplePath.prefix" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.ExamplePath.strokes">
+<code class="sig-name descname">strokes</code><em class="property">: List<span class="p">[</span>str<span class="p">]</span></em><a class="headerlink" href="#tfsq.dataset.ExamplePath.strokes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.ExamplePath.text">
+<code class="sig-name descname">text</code><em class="property">: str</em><a class="headerlink" href="#tfsq.dataset.ExamplePath.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="tfsq.dataset.RawExample">
+<em class="property">class </em><code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">RawExample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">strokes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>numpy.ndarray<span class="p">]</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.dataset.RawExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Raw example struct.</p>
+<dl class="py attribute">
+<dt id="tfsq.dataset.RawExample.strokes">
+<code class="sig-name descname">strokes</code><em class="property">: List<span class="p">[</span>np.ndarray<span class="p">]</span></em><a class="headerlink" href="#tfsq.dataset.RawExample.strokes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.RawExample.text">
+<code class="sig-name descname">text</code><em class="property">: str</em><a class="headerlink" href="#tfsq.dataset.RawExample.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="tfsq.dataset.TensorExample">
+<em class="property">class </em><code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">TensorExample</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">text_ids</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">strokes</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">raw_strokes</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">strokes_lengths</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">strokes_length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">text_length</span><span class="p">:</span> <span class="n">int</span></em>, <em class="sig-param"><span class="n">end_flags</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">strokes_weight</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em>, <em class="sig-param"><span class="n">text_weight</span><span class="p">:</span> <span class="n">numpy.ndarray</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.dataset.TensorExample" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Example for tf.data.Dataset.</p>
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.end_flags">
+<code class="sig-name descname">end_flags</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.end_flags" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.dataset.TensorExample.from_raw">
+<em class="property">classmethod </em><code class="sig-name descname">from_raw</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">x</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tfsq.dataset.RawExample" title="tfsq.dataset.RawExample">tfsq.dataset.RawExample</a></span></em><span class="sig-paren">)</span> &#x2192; <a class="reference internal" href="#tfsq.dataset.TensorExample" title="tfsq.dataset.TensorExample">tfsq.dataset.TensorExample</a><a class="headerlink" href="#tfsq.dataset.TensorExample.from_raw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a raw example.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.padding_values">
+<code class="sig-name descname">padding_values</code><em class="property"> = {'end_flags': 1}</em><a class="headerlink" href="#tfsq.dataset.TensorExample.padding_values" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.raw_strokes">
+<code class="sig-name descname">raw_strokes</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.raw_strokes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.shapes">
+<code class="sig-name descname">shapes</code><em class="property"> = {'end_flags': TensorShape([None]), 'raw_strokes': TensorShape([None, 3]), 'strokes': TensorShape([None, 3]), 'strokes_length': TensorShape([]), 'strokes_lengths': TensorShape([None]), 'strokes_weight': TensorShape([None]), 'text': TensorShape([]), 'text_ids': TensorShape([None]), 'text_length': TensorShape([]), 'text_weight': TensorShape([None])}</em><a class="headerlink" href="#tfsq.dataset.TensorExample.shapes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.strokes">
+<code class="sig-name descname">strokes</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.strokes" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.strokes_length">
+<code class="sig-name descname">strokes_length</code><em class="property">: int</em><a class="headerlink" href="#tfsq.dataset.TensorExample.strokes_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.strokes_lengths">
+<code class="sig-name descname">strokes_lengths</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.strokes_lengths" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.strokes_weight">
+<code class="sig-name descname">strokes_weight</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.strokes_weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.text">
+<code class="sig-name descname">text</code><em class="property">: str</em><a class="headerlink" href="#tfsq.dataset.TensorExample.text" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.text_ids">
+<code class="sig-name descname">text_ids</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.text_ids" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.text_length">
+<code class="sig-name descname">text_length</code><em class="property">: int</em><a class="headerlink" href="#tfsq.dataset.TensorExample.text_length" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="tfsq.dataset.TensorExample.text_to_ids">
+<em class="property">classmethod </em><code class="sig-name descname">text_to_ids</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="headerlink" href="#tfsq.dataset.TensorExample.text_to_ids" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert text to an ascii-id array.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.text_weight">
+<code class="sig-name descname">text_weight</code><em class="property">: np.ndarray</em><a class="headerlink" href="#tfsq.dataset.TensorExample.text_weight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt id="tfsq.dataset.TensorExample.types">
+<code class="sig-name descname">types</code><em class="property"> = {'end_flags': tf.float32, 'raw_strokes': tf.float32, 'strokes': tf.float32, 'strokes_length': tf.int32, 'strokes_lengths': tf.int32, 'strokes_weight': tf.float32, 'text': tf.string, 'text_ids': tf.int32, 'text_length': tf.int32, 'text_weight': tf.float32}</em><a class="headerlink" href="#tfsq.dataset.TensorExample.types" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.calc_stats">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">calc_stats</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">xs</span><span class="p">:</span> <span class="n">Iterable<span class="p">[</span><a class="reference internal" href="#tfsq.dataset.RawExample" title="tfsq.dataset.RawExample">tfsq.dataset.RawExample</a><span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; Dict<span class="p">[</span>str<span class="p">, </span>Any<span class="p">]</span><a class="headerlink" href="#tfsq.dataset.calc_stats" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate statistics over dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.download_tgz">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">download_tgz</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">username</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">password</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">root</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="headerlink" href="#tfsq.dataset.download_tgz" title="Permalink to this definition">¶</a></dt>
+<dd><p>Download required tgz.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.extract_quoted">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">extract_quoted</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">text</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#tfsq.dataset.extract_quoted" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract quoted values in str.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.iter_example_path">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">iter_example_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span><a class="reference internal" href="#tfsq.dataset.ExamplePath" title="tfsq.dataset.ExamplePath">tfsq.dataset.ExamplePath</a><span class="p">]</span><a class="headerlink" href="#tfsq.dataset.iter_example_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Iterate example paths in root.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.load_dataset">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">load_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span><a class="reference internal" href="#tfsq.dataset.RawExample" title="tfsq.dataset.RawExample">tfsq.dataset.RawExample</a><span class="p">]</span><a class="headerlink" href="#tfsq.dataset.load_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load dataset in root.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.load_raw_examples">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">load_raw_examples</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">paths</span><span class="p">:</span> <span class="n"><a class="reference internal" href="#tfsq.dataset.ExamplePath" title="tfsq.dataset.ExamplePath">tfsq.dataset.ExamplePath</a></span></em><span class="sig-paren">)</span> &#x2192; Iterator<span class="p">[</span><a class="reference internal" href="#tfsq.dataset.RawExample" title="tfsq.dataset.RawExample">tfsq.dataset.RawExample</a><span class="p">]</span><a class="headerlink" href="#tfsq.dataset.load_raw_examples" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load examples in paths.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.load_strokes">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">load_strokes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>numpy.ndarray<span class="p">]</span><a class="headerlink" href="#tfsq.dataset.load_strokes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load Stroke values from a file path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.load_text">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">load_text</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">path</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; List<span class="p">[</span>str<span class="p">]</span><a class="headerlink" href="#tfsq.dataset.load_text" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load text lines from a file path.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.load_tf_dataset">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">load_tf_dataset</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">root</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; tensorflow.python.data.ops.dataset_ops.DatasetV1<a class="headerlink" href="#tfsq.dataset.load_tf_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load tf.data.Dataset.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="tfsq.dataset.plot_strokes">
+<code class="sig-prename descclassname">tfsq.dataset.</code><code class="sig-name descname">plot_strokes</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">strokes</span><span class="p">:</span> <span class="n">List<span class="p">[</span>numpy.ndarray<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; matplotlib.figure.Figure<a class="headerlink" href="#tfsq.dataset.plot_strokes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot strokes in a new pyplot figure.</p>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">tfsq</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">tfsq</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="tfsq.html">tfsq package</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="tfsq.html#submodules">Submodules</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">tfsq.dataset module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tfsq.model.html">tfsq.model module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="tfsq.train.html">tfsq.train module</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="tfsq.html#module-tfsq">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="modules.html">tfsq</a><ul>
+  <li><a href="tfsq.html">tfsq package</a><ul>
+      <li>Previous: <a href="tfsq.html" title="previous chapter">tfsq package</a></li>
+      <li>Next: <a href="tfsq.model.html" title="next chapter">tfsq.model module</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2020, klknn.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/tfsq.dataset.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
